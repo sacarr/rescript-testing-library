@@ -24,7 +24,6 @@ lib/js/src/__tests/*.snap
 *.coverage
 
 # Work in progress
-packages/react
 packages/react-hooks
 
 # Logs
