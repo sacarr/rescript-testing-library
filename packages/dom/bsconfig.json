@@ -1,0 +1,39 @@
+{
+  "name": "@rescript-testing-library/dom",
+  "bsc-flags": [
+    "-bs-no-version-header",
+    "-bs-super-errors"
+  ],
+  "warnings": {
+    "number": "+A-48-42",
+    "error": "+A-3-44-102"
+  },
+  "reason": {
+    "react-jsx": 3
+  },
+  "package-specs": {
+    "module": "commonjs",
+    "in-source": false
+  },
+  "suffix": ".bs.js",
+  "bs-dependencies": [
+    "@ryyppy/rescript-promise",
+    "@rescript/react",
+    "rescript-webapi"
+  ],
+  "bs-dev-dependencies": [
+    "@glennsl/rescript-jest",
+    "bisect_ppx"
+  ],
+  "sources": [
+    {
+      "dir": "src",
+      "subdirs": [
+        {
+          "dir": "__tests__",
+          "type": "dev"
+        }
+      ]
+    }
+  ]
+}

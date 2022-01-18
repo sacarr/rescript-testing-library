@@ -1,0 +1,46 @@
+{
+  "name": "rescript-testing-library",
+  "version": "0.0.0",
+  "author": {
+    "name": "Stefanie Carr",
+    "email": "stefanie@ratooncorp.io",
+    "url": "https://ratooncorp.io"
+  },
+  "contributors": [
+    "Neil Kistner <neil.kistner@gmail.com> (https://neilkistner.com)",
+    "Stefanie Carr <stefanie@ratooncorp.io> (https://ratooncorp.io)"
+  ],
+  "description": "Rescript bindings for Kent Dodd's testing-library (https://tessting-library.com)",
+  "devDependencies": {
+    "lerna": "^4.0.0",
+    "semantic-release": "^18.0.1"
+  },
+  "files": [
+    "packages/**/src/*.res",
+    "packages/**/src/*.resi",
+    "packages/**/bsconfig.json"
+  ],
+  "packageManager": "yarn@3.1.1",
+  "keywords": [
+    "rescript",
+    "testing-library"
+  ],
+  "license": "MIT",
+  "main": "lib/js/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:sacarr/rescript-testing-library"
+  },
+  "scripts": {
+    "build": "lerna run build",
+    "clean": "lerna run --parallel clean",
+    "coverage": "lerna run coverage",
+    "release": "lerna run release",
+    "test": "lerna run test"
+  },
+  "workspaces": [
+    "packages/dom",
+    "packages/react",
+    "packages/react-hooks"
+  ]
+}

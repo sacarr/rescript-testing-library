@@ -1,0 +1,6 @@
+* text=auto
+*.js text eol=lf
+*.res linguist-language=Rescript
+*.resi linguist-language=Rescript
+/.yarn/releases/** binary
+/.yarn/plugins/** binary

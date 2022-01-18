@@ -1,0 +1,34 @@
+# Yarn package manager (berry release) for zero-installs
+# https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+#Rescript
+lib/
+
+# Dependencies
+node_modules
+
+# Build
+coverage
+lib
+lib/js/src/__tests/*.snap
+.bsb.lock
+.merlin
+*.coverage
+
+# Work in progress
+packages/react
+packages/react-hooks
+
+# Logs
+*.log
+
+# macOS
+.*DS_Store
