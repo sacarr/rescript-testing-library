@@ -23,9 +23,6 @@ lib/js/src/__tests/*.snap
 .merlin
 *.coverage
 
-# Work in progress
-packages/react-hooks
-
 # Logs
 *.log
 
