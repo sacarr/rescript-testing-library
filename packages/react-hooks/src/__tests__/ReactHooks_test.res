@@ -1,6 +1,5 @@
 open Jest
 open Expect
-module HookTestingLibrary = ReactHookTestingLibrary.RenderHook
 
 module Counter = {
   type action = Increment | Decrement
@@ -32,31 +31,78 @@ module Counter = {
 }
 
 describe("Rescript-testing-library/react-hooks test suite", () => {
+  open ReactHookTestingLibrary.RenderHook
     test("should use counter", () => {
-      let { result, _, _, _ } = HookTestingLibrary.render(() => Counter.useCounter(), ())
+      let initialProps = {Js.Nullable.return({initialProps: { initialValue: 0 }, wrapper: None })}
+      let callback = (/*{ initialValue }*/) => Counter.useCounter()
+      let { result, _, _, _ } = render(callback, initialProps, ())
       result.current["count"]
       -> expect
       -> toBe(0)
     })
 
-    test("should set counter to the initial value", () => {
+    test("should increment counter", () => {
+      let initialProps = {Js.Nullable.return({initialProps: { initialValue: 0 }, wrapper: None })}
+      let callback = (/*{ initialValue }*/) => Counter.useCounter()
+      let { result, _, _, _ } = render(callback, initialProps, ())
+
+      act(() => result.current["increment"]() )
+
+      result.current["count"]
+      -> expect
+      -> toBe(1)
+    })
+
+    test("should set counter to a custom initial value", () => {
       let initialValue = 13
-      let { result, _, _, _ } = HookTestingLibrary.render(() => Counter.useCounter(~initialValue=initialValue, ()), ())
+      let initialProps = {Js.Nullable.return({initialProps: { initialValue: initialValue }, wrapper: None })}
+      let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue, ())
+      let { result, _, _, _ } = render(callback, initialProps, ())
       result.current["count"]
       -> expect
       -> toBe(initialValue)
     })
 
-    test("should set counter to the updated initial value", () => {
+    test("should not update counter when counter was not reset", () => {
       let initialValue = ref(0)
-      let { result, rerender, _, _ } = HookTestingLibrary.render(() => Counter.useCounter(~initialValue=initialValue.contents, ()), ())
+      let initialProps = {Js.Nullable.return({initialProps: { initialValue: initialValue.contents }, wrapper: None })}
+      let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
+      let { result, rerender, _, _ } = render(callback, initialProps, ())
       
       initialValue.contents = 13
-      rerender()
+      rerender(Js.Nullable.return({initialValue: initialValue.contents}))
 
-      HookTestingLibrary.act(() => {
-        result.current["reset"]()
-      })
+      result.current["count"]
+      -> expect
+      -> toBe(0)
+    })
+
+    test("should reset counter to an updated initial value after rerendering", () => {
+      let initialValue = ref(0)
+      let initialProps = {Js.Nullable.return({initialProps: { initialValue: initialValue.contents }, wrapper: None })}
+      let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
+      let { result, rerender, _, _ } = render(callback, initialProps, ())
+      
+      initialValue.contents = 13
+      rerender(Js.Nullable.return({initialValue: initialValue.contents}))
+
+      act(() => result.current["reset"]())
+
+      result.current["count"]
+      -> expect
+      -> toBe(initialValue.contents)
+    })
+
+    test("should reset counter to an updated initial value when passed initial props", () => {
+      let initialValue = ref(0)
+      let initialProps = {Js.Nullable.return({initialProps: { initialValue: initialValue.contents }, wrapper: None })}
+      let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
+      let { result, rerender, _, _ } = render(callback, initialProps, ())
+      
+      initialValue.contents = 13
+      rerender(Js.Nullable.return({initialValue: initialValue.contents}))
+
+      act(() => result.current["reset"]())
 
       result.current["count"]
       -> expect
