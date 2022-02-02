@@ -1,6 +1,8 @@
 
 module RenderHook = {
 
+  type initialValue<'props> = {initialValue: 'props}
+
   type renderResult<'props> = {
     all: array<'props>,
     current: 'props,
@@ -14,7 +16,7 @@ module RenderHook = {
 
   type renderHook<'props, 'newProps> = {
     result: renderResult<'props>,
-    rerender: Js.Nullable.t<'newProps> => (),
+    rerender: option<Js.Nullable.t<'newProps>> => (),
     unmount: () => (),
     waitFor: (() => Promise.t<'props>) => (),
     waitForNextUpdate: (() => Promise.t<'props>) => Promise.t<'props>,
@@ -28,14 +30,14 @@ module RenderHook = {
   @module("@testing-library/react-hooks") external cleanup: () => () = "cleanup"
 
   @module("@testing-library/react-hooks") external _renderHook: (() => 'props ) => renderHook<'props,'newProps> = "renderHook"
-  @module("@testing-library/react-hooks") external __renderHook: (() => 'props,  renderHookOptions<'a,'b>) => renderHook<'props,'newProps> = "renderHook"
-  let render = (hookFn, initialProps: Js.Nullable.t<<renderHookOptions<'a,'b>>, ()) => {
-    switch Js.Nullable.toOption(initialProps) {
+  @module("@testing-library/react-hooks") external __renderHook: (() => 'props,  Js.Nullable.t<renderHookOptions<'a,'b>>) => renderHook<'props,'newProps> = "renderHook"
+  let render = (hookFn, ~initialProps: option<Js.Nullable.t<<renderHookOptions<'a,'b>>>=?, ()) => {
+    switch initialProps {
       | None => _renderHook(hookFn)
       | Some(initialProps) => __renderHook(hookFn, initialProps)
     }
   }
-
+  
 }
 
 

@@ -33,18 +33,16 @@ module Counter = {
 describe("Rescript-testing-library/react-hooks test suite", () => {
   open ReactHookTestingLibrary.RenderHook
     test("should use counter", () => {
-      let initialProps = {Js.Nullable.return({initialProps: { initialValue: 0 }, wrapper: None })}
       let callback = (/*{ initialValue }*/) => Counter.useCounter()
-      let { result, _, _, _ } = render(callback, initialProps, ())
+      let { result, _, _, _ } = render(callback, ())
       result.current["count"]
       -> expect
       -> toBe(0)
     })
 
     test("should increment counter", () => {
-      let initialProps = {Js.Nullable.return({initialProps: { initialValue: 0 }, wrapper: None })}
       let callback = (/*{ initialValue }*/) => Counter.useCounter()
-      let { result, _, _, _ } = render(callback, initialProps, ())
+      let { result, _, _, _ } = render(callback, ())
 
       act(() => result.current["increment"]() )
 
@@ -55,36 +53,51 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
 
     test("should set counter to a custom initial value", () => {
       let initialValue = 13
-      let initialProps = {Js.Nullable.return({initialProps: { initialValue: initialValue }, wrapper: None })}
       let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue, ())
-      let { result, _, _, _ } = render(callback, initialProps, ())
+      let { result, _, _, _ } = render(callback, ())
       result.current["count"]
       -> expect
       -> toBe(initialValue)
     })
 
-    test("should not update counter when counter was not reset", () => {
+    test("should not update counter if not reset", () => {
       let initialValue = ref(0)
-      let initialProps = {Js.Nullable.return({initialProps: { initialValue: initialValue.contents }, wrapper: None })}
       let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
-      let { result, rerender, _, _ } = render(callback, initialProps, ())
-      
+      let { result, rerender, _, _ } = render(callback, ())
       initialValue.contents = 13
-      rerender(Js.Nullable.return({initialValue: initialValue.contents}))
+      let newProps = Some(Js.Nullable.return({initialValue: initialValue.contents}))
+      rerender(newProps)
 
       result.current["count"]
       -> expect
       -> toBe(0)
     })
 
+    test("should update counter even if prop changes are not reRendered", () => {
+      let initialValue = ref(0)
+      let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
+      let { result, rerender, _, _ } = render(callback, ())
+      initialValue.contents = 13
+      let newProps = Some(Js.Nullable.null)
+
+      rerender(newProps)
+
+      act(() => result.current["reset"]())
+
+      result.current["count"]
+      -> expect
+      -> toBe(initialValue.contents)
+    })
+
     test("should reset counter to an updated initial value after rerendering", () => {
       let initialValue = ref(0)
       let initialProps = {Js.Nullable.return({initialProps: { initialValue: initialValue.contents }, wrapper: None })}
       let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
-      let { result, rerender, _, _ } = render(callback, initialProps, ())
+      let { result, rerender, _, _ } = render(callback, ~initialProps, ())
       
       initialValue.contents = 13
-      rerender(Js.Nullable.return({initialValue: initialValue.contents}))
+      let newProps = Some(Js.Nullable.return({initialValue: initialValue.contents}))
+      rerender(newProps)
 
       act(() => result.current["reset"]())
 
@@ -97,10 +110,11 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
       let initialValue = ref(0)
       let initialProps = {Js.Nullable.return({initialProps: { initialValue: initialValue.contents }, wrapper: None })}
       let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
-      let { result, rerender, _, _ } = render(callback, initialProps, ())
+      let { result, rerender, _, _ } = render(callback, ~initialProps, ())
       
       initialValue.contents = 13
-      rerender(Js.Nullable.return({initialValue: initialValue.contents}))
+      let newProps = Some(Js.Nullable.return({initialValue: initialValue.contents}))
+      rerender(newProps)
 
       act(() => result.current["reset"]())
 
