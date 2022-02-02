@@ -33,7 +33,7 @@ module Counter = {
 describe("Rescript-testing-library/react-hooks test suite", () => {
   open ReactHookTestingLibrary.RenderHook
     test("should use counter", () => {
-      let callback = (/*{ initialValue }*/) => Counter.useCounter()
+      let callback = () => Counter.useCounter()
       let { result, _, _, _ } = render(callback, ())
       result.current["count"]
       -> expect
@@ -41,7 +41,7 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
     })
 
     test("should increment counter", () => {
-      let callback = (/*{ initialValue }*/) => Counter.useCounter()
+      let callback = () => Counter.useCounter()
       let { result, _, _, _ } = render(callback, ())
 
       act(() => result.current["increment"]() )
@@ -53,16 +53,16 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
 
     test("should set counter to a custom initial value", () => {
       let initialValue = 13
-      let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue, ())
+      let callback = () => Counter.useCounter(~initialValue=initialValue, ())
       let { result, _, _, _ } = render(callback, ())
       result.current["count"]
       -> expect
       -> toBe(initialValue)
     })
 
-    test("should not update counter if not reset", () => {
+    test("should not update counter", () => {
       let initialValue = ref(0)
-      let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
+      let callback = () => Counter.useCounter(~initialValue=initialValue.contents, ())
       let { result, rerender, _, _ } = render(callback, ())
       initialValue.contents = 13
       let newProps = Some(Js.Nullable.return({initialValue: initialValue.contents}))
@@ -75,7 +75,7 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
 
     test("should update counter even if prop changes are not reRendered", () => {
       let initialValue = ref(0)
-      let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
+      let callback = () => Counter.useCounter(~initialValue=initialValue.contents, ())
       let { result, rerender, _, _ } = render(callback, ())
       initialValue.contents = 13
       let newProps = Some(Js.Nullable.null)
@@ -89,7 +89,7 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
       -> toBe(initialValue.contents)
     })
 
-    test("should reset counter to an updated initial value after rerendering", () => {
+    test("should reset counter after update of initial value", () => {
       let initialValue = ref(0)
       let initialProps = {Js.Nullable.return({initialProps: { initialValue: initialValue.contents }, wrapper: None })}
       let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
@@ -106,7 +106,7 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
       -> toBe(initialValue.contents)
     })
 
-    test("should reset counter to an updated initial value when passed initial props", () => {
+    test("should reset counter after initial props updated", () => {
       let initialValue = ref(0)
       let initialProps = {Js.Nullable.return({initialProps: { initialValue: initialValue.contents }, wrapper: None })}
       let callback = (/*{ initialValue }*/) => Counter.useCounter(~initialValue=initialValue.contents, ())
