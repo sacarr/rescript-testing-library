@@ -3,6 +3,13 @@ module RenderHook = {
 
   type initialValue<'props> = {initialValue: 'props}
 
+  type hookCB0<'return> = () => 'return
+  type hookCB1<'props,'return> = initialValue<'props> => 'return
+
+  type rec hookCB<'props,'return> = 
+    | SimpleHook(hookCB0<'return>): hookCB<'props,'return>
+    | HookWithProps(hookCB1<'props,'return>): hookCB<'props,'return>
+
   type renderResult<'props> = {
     all: array<'props>,
     current: 'props,
@@ -14,13 +21,13 @@ module RenderHook = {
     wrapper: option<React.component<'b>>
   }
 
-  type renderHook<'props, 'newProps> = {
-    result: renderResult<'props>,
-    rerender: option<Js.Nullable.t<'newProps>> => (),
+  type renderHook<'props, 'return> = {
+    result: renderResult<'return>,
+    rerender: option<Js.Nullable.t<initialValue<'props>>> => (),
     unmount: () => (),
-    waitFor: (() => Promise.t<'props>) => (),
-    waitForNextUpdate: (() => Promise.t<'props>) => Promise.t<'props>,
-    waitForValueToChange: (() => Promise.t<'props>) => Promise.t<'props>
+    waitFor: (() => Promise.t<'return>) => (),
+    waitForNextUpdate: (() => Promise.t<'props>) => Promise.t<'return>,
+    waitForValueToChange: (() => Promise.t<'props>) => Promise.t<'return>
   }
 
   @module("@testing-library/react-hooks") external _act: (() => ()) => () = "act"
@@ -29,15 +36,25 @@ module RenderHook = {
   @module("@testing-library/react-hooks") external hydrate: () => () = "hydrate"
   @module("@testing-library/react-hooks") external cleanup: () => () = "cleanup"
 
-  @module("@testing-library/react-hooks") external _renderHook: (() => 'props ) => renderHook<'props,'newProps> = "renderHook"
-  @module("@testing-library/react-hooks") external __renderHook: (() => 'props,  Js.Nullable.t<renderHookOptions<'a,'b>>) => renderHook<'props,'newProps> = "renderHook"
-  let render = (hookFn, ~initialProps: option<Js.Nullable.t<<renderHookOptions<'a,'b>>>=?, ()) => {
+  @module("@testing-library/react-hooks") external _renderHook0: (hookCB0<'return>) => renderHook<'props,'return> = "renderHook"
+  @module("@testing-library/react-hooks") external _renderHook1: (hookCB1<'props,'return>) => renderHook<'props,'return> = "renderHook"
+  @module("@testing-library/react-hooks") external _renderHook2: (hookCB1<'props,'return>,  Js.Nullable.t<renderHookOptions<'a,'b>>) => renderHook<'props,'return> = "renderHook"
+  @module("@testing-library/react-hooks") external _renderHook3: (hookCB0<'return>,  Js.Nullable.t<renderHookOptions<'a,'b>>) => renderHook<'props,'return> = "renderHook"
+
+  let renderHook = (callback, ~initialProps: option<Js.Nullable.t<renderHookOptions<'a,'b>>>=?, ()) => {
     switch initialProps {
-      | None => _renderHook(hookFn)
-      | Some(initialProps) => __renderHook(hookFn, initialProps)
+      | None => {
+        switch callback {
+          | HookWithProps(cb) => _renderHook1(cb)
+          | SimpleHook(cb) => _renderHook0(cb)
+        }
+      }
+      | Some(initialProps) => {
+        switch callback {
+        | SimpleHook(cb) => _renderHook3(cb, initialProps)
+        | HookWithProps(cb) => _renderHook2(cb, initialProps)
+        }
+      }
     }
   }
-  
 }
-
-
