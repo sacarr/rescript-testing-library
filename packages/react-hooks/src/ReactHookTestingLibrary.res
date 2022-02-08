@@ -4,7 +4,7 @@ module RenderHook = {
   type initialValue<'props> = {initialValue: 'props}
 
   type hook0<'return> = () => 'return
-  type hook1<'props,'return> = initialValue<'props> => 'return
+  type hook1<'props,'return> = 'props => 'return
   
   type rec hook<'props,'return> = 
     | Hook(hook0<'return>): hook<'props,'return>
@@ -23,7 +23,7 @@ module RenderHook = {
 
   type renderHook<'props, 'return> = {
     result: renderResult<'return>,
-    rerender: Js.Nullable.t<initialValue<'props>> => (),
+    rerender: Js.Nullable.t<'props> => (),
     unmount: () => (),
     waitFor: (() => Promise.t<'return>) => (),
     waitForNextUpdate: (() => Promise.t<'props>) => Promise.t<'return>,
