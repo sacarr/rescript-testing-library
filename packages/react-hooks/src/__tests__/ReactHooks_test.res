@@ -25,7 +25,7 @@ module Counter = {
     let reset = React.useCallback1(() => setCount((_) => initialValue), [initialValue])
     let calculate = React.useEffect1(() => {
       setCalculation((_) => count * 2)
-      None
+      Some(() => setCalculation((_) => initialValue ) )
   }, [count])
     {"calculation": calculation, "calculate": calculate, "increment": increment, "reset": reset}
 
@@ -131,23 +131,18 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
       -> toBe(13)
     })
 
-/*
+
     test("should clean up side effect", () => {
       let initialProps = {{initialProps: { initialValue: 0 }, wrapper: None }}
-      let hookCb = HookWithProps(({ initialValue }) => {
-        React.useEffect1(() => {
-          let _ = Counter.useCounter(~initialValue, ())
-            Counter.useCounter.calculate()
-        }, [initialValue])
-      })
+      let hookCb = HookWithProps(({ initialValue }) => Counter.calculate(~initialValue, ()))
       let { result, rerender, _ } = renderHook(hookCb, ~initialProps, ())
       
-      let newProps = Some({ initialValue: 13 })   
+      let newProps = Js.Nullable.return({ initialValue: 13 })
       rerender(newProps)
 
       result.current["calculation"]
       -> expect
-      -> toBe(26)
+      -> toBe(0)
     })
-*/
+
 })
