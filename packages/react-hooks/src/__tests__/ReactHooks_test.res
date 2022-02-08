@@ -18,6 +18,18 @@ module Counter = {
     let reset = React.useCallback1(() => setCount((_) => initialValue), [initialValue])
     {"count": count, "increment": increment, "reset": reset}
   }
+  let calculate = (~initialValue=0, ()) => {
+    let (count, setCount) = React.useState(_ => initialValue)
+    let (calculation, setCalculation) = React.useState(_ => initialValue)
+    let increment = React.useCallback1(() => setCount((x) => x+1), [])
+    let reset = React.useCallback1(() => setCount((_) => initialValue), [initialValue])
+    let calculate = React.useEffect1(() => {
+      setCalculation((_) => count * 2)
+      None
+  }, [count])
+    {"calculation": calculation, "calculate": calculate, "increment": increment, "reset": reset}
+
+  }
 
   @react.component
   let make = () => {
@@ -33,28 +45,31 @@ module Counter = {
 describe("Rescript-testing-library/react-hooks test suite", () => {
   open ReactHookTestingLibrary.RenderHook
     test("should use counter", () => {
-      let callback = _ => Counter.useCounter()
-      let { result, _, _, _ } = renderHook(SimpleHook(callback), ())
+      let hookCb = Hook(_ => Counter.useCounter())
+      let { result, _ } = renderHook(hookCb, ())
       result.current["count"]
       -> expect
       -> toBe(0)
     })
 
     test("should increment counter", () => {
-      let callback = () => Counter.useCounter()
-      let { result, _, _, _ } = renderHook(SimpleHook(callback), ())
+      let hookCb = Hook(() => Counter.useCounter())
+      let { result, _ } = renderHook(hookCb, ())
 
-      act(() => result.current["increment"]() )
+      act(() => {
+        result.current["increment"]() 
+        result.current["increment"]()
+      })
 
       result.current["count"]
       -> expect
-      -> toBe(1)
+      -> toBe(2)
     })
 
     test("should set counter to a custom initial value", () => {
       let initialValue = 13
-      let callback = () => Counter.useCounter(~initialValue=initialValue, ())
-      let { result, _, _, _ } = renderHook(SimpleHook(callback), ())
+      let hookCb = Hook(() => Counter.useCounter(~initialValue=initialValue, ()))
+      let { result, _ } = renderHook(hookCb, ())
       result.current["count"]
       -> expect
       -> toBe(initialValue)
@@ -62,10 +77,10 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
 
     test("should not update counter", () => {
       let initialValue = ref(0)
-      let callback = () => Counter.useCounter(~initialValue=initialValue.contents, ())
-      let { result, rerender, _, _ } = renderHook(SimpleHook(callback), ())
+      let hookCb = Hook(() => Counter.useCounter(~initialValue=initialValue.contents, ()))
+      let { result, rerender, _ } = renderHook(hookCb, ())
       initialValue.contents = 13
-      let newProps = Some(Js.Nullable.return({initialValue: initialValue.contents}))
+      let newProps = Js.Nullable.return({initialValue: initialValue.contents})
       rerender(newProps)
 
       result.current["count"]
@@ -75,12 +90,11 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
 
     test("should update counter even if prop changes are not reRendered", () => {
       let initialValue = ref(0)
-      let callback = () => Counter.useCounter(~initialValue=initialValue.contents, ())
-      let { result, rerender, _, _ } = renderHook(SimpleHook(callback), ())
+      let hookCb = Hook(() => Counter.useCounter(~initialValue=initialValue.contents, ()))
+      let { result, rerender, _ } = renderHook(hookCb, ())
       initialValue.contents = 13
-      let newProps = Some(Js.Nullable.null)
 
-      rerender(newProps)
+      rerender(Js.Nullable.null)
 
       act(() => result.current["reset"]())
 
@@ -90,11 +104,11 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
     })
 
     test("should reset counter to updated initial value", () => {
-      let initialProps = {Js.Nullable.return({initialProps: { initialValue: 0 }, wrapper: None })}
-      let callback = ({ initialValue }) => Counter.useCounter(~initialValue, ())
-      let { result, rerender, _, _ } = renderHook(HookWithProps(callback), ~initialProps, ())
+      let initialProps = {{initialProps: { initialValue: 0 }, wrapper: None }}
+      let hookCb = HookWithProps(({ initialValue }) => Counter.useCounter(~initialValue, ()))
+      let { result, rerender, _ } = renderHook(hookCb, ~initialProps, ())
       
-      let newProps = Some(Js.Nullable.return({ initialValue: 13 }))     
+      let newProps = Js.Nullable.return({ initialValue: 13 })
       rerender(newProps)
       act(() => result.current["reset"]())
 
@@ -103,22 +117,37 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
       -> toBe(13)
     })
 
-    /*
-    test("should clean up side effect", () => {
-      let id = ref("first")
-      let callback = () => {
-        React.useEffect1(() => {
-          sideEffect.start(id.contents)
-          () => sideEffect.stop(id.contents)
-        }, [id.contents])
-      }
-      let { _, rerender, _, _ } = renderHook(SimpleHook(callback), ())
+    test("should reset counter to updated value using an object", () => {
+      let initialProps = {{initialProps: { initialValue: 0 }, wrapper: None }}
+      let hookCb = HookWithProps(({ initialValue }) => Counter.useCounter(~initialValue, ()))
+      let { result, rerender, _ } = renderHook(hookCb, ~initialProps, ())
       
-      id = "second"
-      rerender()
+      let newProps = Js.Nullable.return({ initialValue: 13 })
+      rerender(newProps)
+      act(() => result.current["reset"]())
 
-      sideEffect.get("first") -> expect -> toBe(false)
-      sideEffect.get("second") -> expect -> toBe(true)
+      result.current["count"]
+      -> expect
+      -> toBe(13)
     })
-    */
+
+/*
+    test("should clean up side effect", () => {
+      let initialProps = {{initialProps: { initialValue: 0 }, wrapper: None }}
+      let hookCb = HookWithProps(({ initialValue }) => {
+        React.useEffect1(() => {
+          let _ = Counter.useCounter(~initialValue, ())
+            Counter.useCounter.calculate()
+        }, [initialValue])
+      })
+      let { result, rerender, _ } = renderHook(hookCb, ~initialProps, ())
+      
+      let newProps = Some({ initialValue: 13 })   
+      rerender(newProps)
+
+      result.current["calculation"]
+      -> expect
+      -> toBe(26)
+    })
+*/
 })
