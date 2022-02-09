@@ -43,7 +43,7 @@ module Counter = {
 }
 
 describe("Rescript-testing-library/react-hooks test suite", () => {
-  open ReactHookTestingLibrary.RenderHook
+  open ReactHookTestingLibrary
     test("should use counter", () => {
       let hookCb = Hook(_ => Counter.useCounter())
       let { result, _ } = renderHook(hookCb, ())
