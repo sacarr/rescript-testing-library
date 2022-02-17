@@ -8,7 +8,7 @@ type rec hook<'props, 'result> =
 type renderResult<'result> = {
   all: array<'result>,
   current: 'result,
-  error: Js.Exn.t,
+  error: Js.Nullable.t<Js.Exn.t>,
 }
 
 type renderHookOptions<'a, 'b> = {
@@ -85,7 +85,7 @@ module MakeRenderable = (Item: Renderable) => {
   let cleanup: (unit => unit) => unit = callback => RenderHook.cleanup(callback)
   let current: renderHook<Item.props, Item.result> => Item.result = rendered =>
     rendered.result.current
-  let error: renderHook<Item.props, Item.result> => Js.Exn.t = rendered => rendered.result.error
+  let error: renderHook<Item.props, Item.result> => option<Js.Exn.t> = rendered => Js.Nullable.toOption(rendered.result.error)
   let hydrate: (unit => unit) => unit = callback => RenderHook.hydrate(callback)
   let rerender: (renderHook<Item.props, Item.result>, ~newProps: Item.props=?, unit) => unit = (
     rendered,

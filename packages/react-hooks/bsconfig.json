@@ -32,7 +32,13 @@
       "subdirs": [
         {
           "dir": "__tests__",
-          "type": "dev"
+          "type": "dev",
+          "subdirs": [
+            {
+              "dir": "fixtures",
+              "type": "dev"
+          }
+          ]
         }
       ]
     }

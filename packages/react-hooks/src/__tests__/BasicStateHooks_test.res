@@ -2,46 +2,7 @@ open Jest
 open Expect
 open ReactHookTestingLibrary
 
-module Calculator = {
-  type props = {initialValue: int}
-  type result = {
-    calculation: int,
-    calculate: unit => unit,
-    increment: React.callback<unit, unit>,
-    reset: React.callback<unit, unit>,
-  }
-  let calculate = (~initialValue=0, ()) => {
-    let (count, setCount) = React.useState(_ => initialValue)
-    let (calculation, setCalculation) = React.useState(_ => initialValue)
-    let increment = React.useCallback1(() => setCount(x => x + 1), [])
-    let reset = React.useCallback1(() => setCount(_ => initialValue), [initialValue])
-    let calculate = () => React.useEffect1(() => {
-        setCalculation(_ => count * 2)
-        Some(() => setCalculation(_ => initialValue))
-      }, [count])
-    {calculation: calculation, calculate: calculate, increment: increment, reset: reset}
-  }
-}
-
-module Counter = {
-  type props = {initialValue: int}
-  type result = {
-    count: int,
-    increment: React.callback<unit, unit>,
-    reset: React.callback<unit, unit>,
-  }
-  let useCounter = (~initialValue=0, ()) => {
-    let (count, setCount) = React.useState(_ => initialValue)
-    let increment = React.useCallback1(() => setCount(x => x + 1), [])
-    let reset = React.useCallback1(() => setCount(_ => initialValue), [initialValue])
-    {count: count, increment: increment, reset: reset}
-  }
-  let count: result => int = res => res.count
-  let inc: result => React.callback<unit, unit> = res => res.increment
-  let res: result => React.callback<unit, unit> = res => res.reset
-}
-
-describe("Rescript-testing-library/react-hooks test suite", () => {
+describe("Rescript-testing-library/react-hooks state hook tests", () => {
   test("should use counter", () => {
     let callback = BasicHook(() => Counter.useCounter())
     let {result, _} = RenderHook.renderHook(callback, ())
@@ -117,18 +78,5 @@ describe("Rescript-testing-library/react-hooks test suite", () => {
     RenderHook.act(() => result.current.reset())
 
     result.current.count->expect->toBe(13)
-  })
-
-  test("should clean up side effect", () => {
-    let initialProps = {{initialProps: {Calculator.initialValue: 0}, wrapper: None}}
-    let hookCb = HookWithProps(
-      ({Calculator.initialValue: initialValue}) => Calculator.calculate(~initialValue, ()),
-    )
-    let {result, rerender, _} = RenderHook.renderHook(hookCb, ~initialProps, ())
-
-    let newProps = Js.Nullable.return({Calculator.initialValue: 13})
-    rerender(newProps)
-
-    result.current.calculation->expect->toBe(0)
   })
 })
