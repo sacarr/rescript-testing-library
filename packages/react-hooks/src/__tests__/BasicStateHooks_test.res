@@ -10,8 +10,8 @@ describe("Rescript-testing-library/react-hooks state hook tests", () => {
   })
 
   test("should increment counter", () => {
-    let hookCb = BasicHook(() => Counter.useCounter())
-    let {result, _} = RenderHook.renderHook(hookCb, ())
+    let callback = BasicHook(() => Counter.useCounter())
+    let {result, _} = RenderHook.renderHook(callback, ())
 
     RenderHook.act(() => {
       result.current.increment()
@@ -23,15 +23,15 @@ describe("Rescript-testing-library/react-hooks state hook tests", () => {
 
   test("should set counter to a custom initial value", () => {
     let initialValue = 13
-    let hookCb = BasicHook(() => Counter.useCounter(~initialValue, ()))
-    let {result, _} = RenderHook.renderHook(hookCb, ())
+    let callback = BasicHook(() => Counter.useCounter(~initialValue, ()))
+    let {result, _} = RenderHook.renderHook(callback, ())
     result.current.count->expect->toBe(initialValue)
   })
 
   test("should not update counter", () => {
     let initialValue = ref(0)
-    let hookCb = BasicHook(() => Counter.useCounter(~initialValue=initialValue.contents, ()))
-    let {result, rerender, _} = RenderHook.renderHook(hookCb, ())
+    let callback = BasicHook(() => Counter.useCounter(~initialValue=initialValue.contents, ()))
+    let {result, rerender, _} = RenderHook.renderHook(callback, ())
     initialValue.contents = 13
     let newProps = Js.Nullable.return({Counter.initialValue: initialValue.contents})
     rerender(newProps)
@@ -41,8 +41,8 @@ describe("Rescript-testing-library/react-hooks state hook tests", () => {
 
   test("should update counter when prop changes are not reRendered", () => {
     let initialValue = ref(0)
-    let hookCb = BasicHook(() => Counter.useCounter(~initialValue=initialValue.contents, ()))
-    let {result, rerender, _} = RenderHook.renderHook(hookCb, ())
+    let callback = BasicHook(() => Counter.useCounter(~initialValue=initialValue.contents, ()))
+    let {result, rerender, _} = RenderHook.renderHook(callback, ())
     initialValue.contents = 13
 
     rerender(Js.Nullable.null)
@@ -54,10 +54,10 @@ describe("Rescript-testing-library/react-hooks state hook tests", () => {
 
   test("should reset counter to updated initial value", () => {
     let initialProps = {{initialProps: {Counter.initialValue: 0}, wrapper: None}}
-    let hookCb = HookWithProps(
+    let callback = HookWithProps(
       ({Counter.initialValue: initialValue}) => Counter.useCounter(~initialValue, ()),
     )
-    let {result, rerender, _} = RenderHook.renderHook(hookCb, ~initialProps, ())
+    let {result, rerender, _} = RenderHook.renderHook(callback, ~initialProps, ())
 
     let newProps = Js.Nullable.return({Counter.initialValue: 13})
     rerender(newProps)
@@ -68,10 +68,10 @@ describe("Rescript-testing-library/react-hooks state hook tests", () => {
 
   test("should reset counter to updated value using an object", () => {
     let initialProps = {{initialProps: {Counter.initialValue: 0}, wrapper: None}}
-    let hookCb = HookWithProps(
+    let callback = HookWithProps(
       ({Counter.initialValue: initialValue}) => Counter.useCounter(~initialValue, ()),
     )
-    let {result, rerender, _} = RenderHook.renderHook(hookCb, ~initialProps, ())
+    let {result, rerender, _} = RenderHook.renderHook(callback, ~initialProps, ())
 
     let newProps = Js.Nullable.return({Counter.initialValue: 13})
     rerender(newProps)
