@@ -10,8 +10,7 @@
       | _ => Js.Array2.spliceInPlace(expectedResults, ~pos=0, ~remove=Js.Array2.length(expectedResults), ~add=val) -> ignore
       }
     }
-  let getResultsAsString = () => Js.Array2.toString(expectedResults)
-  let getResults = () => expectedResults
+  let expected = () => expectedResults
   let initialize = val => {
     let len = Js.Array2.length(theEffects)
     for i in 0 to len-1 {
