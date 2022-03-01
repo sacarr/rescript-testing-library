@@ -3,7 +3,15 @@
   type props = {id: int}
   type result = sideEffect
   let theEffects: sideEffect = [false, false]
-  let theResults = "true, false, false, true, false, false"
+  let expectedResults: array<bool> = []
+  let setResults = val => {
+    switch Js.Array2.length(expectedResults) {
+      | 0 => Js.Array2.pushMany(expectedResults, val) -> ignore
+      | _ => Js.Array2.spliceInPlace(expectedResults, ~pos=0, ~remove=Js.Array2.length(expectedResults), ~add=val) -> ignore
+      }
+    }
+  let getResultsAsString = () => Js.Array2.toString(expectedResults)
+  let getResults = () => expectedResults
   let initialize = val => {
     let len = Js.Array2.length(theEffects)
     for i in 0 to len-1 {
@@ -13,8 +21,9 @@
 
   let get = id => {
     let len = Js.Array2.length(theEffects)
-    if id < len {
-      theEffects[id]
+    let arrayId = id - 1
+    if arrayId < len {
+        theEffects[arrayId]
     } else {
       Js.Exn.raiseRangeError(`${Belt.Int.toString(id)} is greater than ${Belt.Int.toString(len)}`)
     }
@@ -22,8 +31,9 @@
 
   let start = id => {
     let len = Js.Array2.length(theEffects)
-    if id < len {
-      theEffects[id] = true
+    let arrayId = id - 1
+    if arrayId < len {
+      theEffects[arrayId] = true
     } else {
       Js.Exn.raiseRangeError(`${Belt.Int.toString(id)} is greater than ${Belt.Int.toString(len)}`)
     }
@@ -31,8 +41,9 @@
 
   let stop = id => {
     let len = Js.Array2.length(theEffects)
-    if id < len {
-      theEffects[id] = false
+    let arrayId = id - 1
+    if arrayId < len {
+      theEffects[arrayId] = false
     } else {
       Js.Exn.raiseRangeError(`${Belt.Int.toString(id)} is greater than ${Belt.Int.toString(len)}`)
     }

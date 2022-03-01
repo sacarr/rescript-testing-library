@@ -6,7 +6,10 @@ open SideEffects
 
 describe("Rescript-testing-library/react-hooks Effect hook tests", () => {
   test("should handle useEffect hook", () => {
+    let theResults = []
     let initialProps = { initialProps: { SideEffects.id: 1 }, wrapper: None }
+    SideEffects.initialize(false)
+    SideEffects.setResults([true, false, false, true, false, false])
     let callback = HookWithProps(
       ({ SideEffects.id }) => {
         React.useEffect1(() => {
@@ -16,22 +19,21 @@ describe("Rescript-testing-library/react-hooks Effect hook tests", () => {
       })
     let { rerender, unmount, _ } = RenderHook.renderHook(callback, ~initialProps, ())
 
-    let theResults = ref("")
-    theResults.contents = `${string_of_bool(SideEffects.theEffects[0])}`
-    theResults.contents = `${theResults.contents}, ${string_of_bool(SideEffects.theEffects[1])}`
+    Js.Array2.push(theResults, SideEffects.get(1)) -> ignore
+    Js.Array2.push(theResults, SideEffects.get(2)) -> ignore
 
     let newProps = Js.Nullable.return({ SideEffects.id: 2 })
     rerender(newProps)
 
-    theResults.contents = `${theResults.contents}, ${string_of_bool(SideEffects.theEffects[0])}`
-    theResults.contents = `${theResults.contents}, ${string_of_bool(SideEffects.theEffects[1])}`
+    Js.Array2.push(theResults, SideEffects.get(1)) -> ignore
+    Js.Array2.push(theResults, SideEffects.get(2)) -> ignore
 
     unmount()
 
-    theResults.contents = `${theResults.contents}, ${string_of_bool(SideEffects.theEffects[0])}`
-    theResults.contents = `${theResults.contents}, ${string_of_bool(SideEffects.theEffects[1])}`
+    Js.Array2.push(theResults, SideEffects.get(1)) -> ignore
+    Js.Array2.push(theResults, SideEffects.get(2)) -> ignore
 
-    theResults.contents -> expect -> toMatch(SideEffects.theResults)
+    theResults -> expect -> toBeSupersetOf(SideEffects.getResults())
 
   })
 
