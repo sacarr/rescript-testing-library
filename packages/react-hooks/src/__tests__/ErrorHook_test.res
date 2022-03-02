@@ -4,9 +4,24 @@ open ReactHookTestingLibrary
 
 module HookThrowsError = MakeRenderable(ThrowsError)
 
-describe("Rescript-testing-library/react-hooks Functor-based Error handling", () => {
+describe("Rescript-testing-library/react-hooks Error handling tests", () => {
 
   test("should not throw an error", () => {
+    let message="Exception not expected"
+    let callback = BasicHook(() => ThrowsError.useError(~throwError=false, ~message, ()))
+    let rendered = RenderHook.renderHook(callback, ())
+    switch rendered -> RenderHook.error {
+      | None =>  (rendered -> RenderHook.current).message -> expect -> toMatch(message)
+      | Some(err) => {
+        switch Js.Exn.message(err) {
+          | Some(msg) =>  msg -> expect -> toMatch(message)
+          | _ => fail("Unknown Exception")
+        }
+      }
+    }
+  })
+
+  test("Functor should not throw an error", () => {
     let message="Exception not expected"
     let callback = BasicHook(() => ThrowsError.useError(~throwError=false, ~message, ()))
     let hook = HookThrowsError.renderHook(callback, ())
@@ -29,6 +44,22 @@ describe("Rescript-testing-library/react-hooks Functor-based Error handling", ()
     let message="Exception expected"
     let failMessage = `Expected exception message to Match ${message}`
     let callback = BasicHook(() => ThrowsError.useError(~throwError=true, ~message, ()))
+      let rendered = RenderHook.renderHook(callback, ())
+      switch rendered -> RenderHook.error {
+        | Some(err) => {
+          switch Js.Exn.message(err) {
+            | None => fail(failMessage)
+            | Some(msg) =>  msg -> expect -> toMatch(message)
+          }
+        }
+        | _ => fail(failMessage)        
+      }
+  })
+
+  test("Functor should throw an error", () => {
+    let message="Exception expected"
+    let failMessage = `Expected exception message to Match ${message}`
+    let callback = BasicHook(() => ThrowsError.useError(~throwError=true, ~message, ()))
       let error = HookThrowsError.renderHook(callback, ()) -> HookThrowsError.error
       switch error {
         | Some(err) => {
@@ -40,4 +71,5 @@ describe("Rescript-testing-library/react-hooks Functor-based Error handling", ()
         | _ => fail(failMessage)        
       }
   })
+
 })
